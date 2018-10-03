@@ -43,26 +43,17 @@ with open('data/record_1537397981102_00047BB63.csv', newline='') as csvfile:
 	body = np.array(rawdata[k:])
 	data = pd.DataFrame(body, columns=header)
 
-# Calculate the frequency programmatically
-unix_timestamps = data['unix_timestamp'].tolist()
-diffs = []
-for i in range(1, len(unix_timestamps) - 1):
-	m = int(unix_timestamps[i])
-	n = int(unix_timestamps[i+1])
-	diffs.append(n - m)
+fs = hb.get_samplerate_mstimer([int(x) for x in data['unix_timestamp'].tolist()])
 
-# Note: timestamps are in milliseconds, so hz = 1000 / avg
-avg_hz = np.floor(1000 / np.mean(diffs))
-print(np.floor(1000 / np.mean(diffs)) / 4)
+# print(np.floor(1000 / np.mean(diffs)) / 4)
 
 voltages = np.array([intr(x) for x in data['heart_rate_voltage'].tolist()])
-filtered = hb.butter_lowpass_filter(voltages, cutoff=np.floor(avg_hz / 4), sample_rate=avg_hz, order=3)
+filtered = hb.butter_lowpass_filter(voltages, cutoff=np.floor(fs / 4), sample_rate=fs, order=3)
 enhanced = hb.enhance_peaks(filtered, iterations=2)
 
-# measures = hb.process(voltages, avg_hz)
 measures = hb.process(
 	enhanced,				# array-like
-	avg_hz,					# frequency
+	fs,						# frequency
 	report_time=True,		# print the time for processing
 	calc_freq=True,			# calcuate frequency domain
 	interp_clipping=False,	# implied peak is interpolated
