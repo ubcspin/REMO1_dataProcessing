@@ -48,9 +48,11 @@ def intr(x):
 	return int(x)
 
 voltages = np.array([intr(x) for x in data['heart_rate_voltage'].tolist()])
+enhanced = hb.enhance_peaks(voltages, iterations=2)
+
 # measures = hb.process(voltages, avg_hz)
 measures = hb.process(
-	voltages,				# array-like
+	enhanced,				# array-like
 	avg_hz,					# frequency
 	report_time=True,		# print the time for processing
 	calc_freq=True,			# calcuate frequency domain
