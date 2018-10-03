@@ -1,21 +1,28 @@
 import numpy as np
 import pandas as pd
-
-# from	 	https://github.com/paulvangentcom/heartrate_analysis_python
-# docs at 	https://python-heart-rate-analysis-toolkit.readthedocs.io/en/latest/
-import heartbeat as hb 
-
+import heartbeat as hb
 import csv
+from collections import OrderedDict
 
-# custom int converter decorator to deal with null values
-# returns int(x) if the input isn't the string "null"
-def intr(x):
-	ret = x
-	if (x=='null'):
-		return 0
-	return int(x)
 
-# Processing needs to be done for our custom CSV header
+# class myDict:
+# 	def __init__(self, reader, header_index):
+# 		# reader is a csv reader object
+# 		rawdata = [x for x in reader]
+# 		body = np.array(rawdata[header_index + 1:])
+		
+# 		self.header = rawdata[header_index]
+# 		self.data = pd.DataFrame(body, columns=self.header)
+
+# 	# # helper for print function, add whitespace to lines for a fixed width
+# 	# def fixwidth(self, s, w):
+# 	# 	return s + " " * (w - len(s))
+
+# 	# # override print to show first three lines of the data
+# 	# def __str__(self):
+# 		return str(self.data)
+
+
 with open('data/test.csv', newline='') as csvfile:
 	reader = csv.reader(csvfile)
 	rawdata = [x for x in reader]
@@ -24,7 +31,6 @@ with open('data/test.csv', newline='') as csvfile:
 	body = np.array(rawdata[header_index + 1:])
 	data = pd.DataFrame(body, columns=header)
 
-# Calculate the frequency programmatically
 unix_timestamps = data['unix_timestamp'].tolist()
 diffs = []
 for i in range(1, len(unix_timestamps) - 1):
@@ -32,8 +38,14 @@ for i in range(1, len(unix_timestamps) - 1):
 	n = int(unix_timestamps[i+1])
 	diffs.append(n - m)
 
-# Note: timestamps are in milliseconds, so hz = 1000 / avg
 avg_hz = np.floor(1000 / np.mean(diffs))
+std_hz = np.std(diffs)
+
+def intr(x):
+	ret = x
+	if (x=='null'):
+		return 0
+	return int(x)
 
 voltages = np.array([intr(x) for x in data['heart_rate_voltage'].tolist()])
 enhanced = hb.enhance_peaks(voltages, iterations=2)
@@ -48,5 +60,7 @@ measures = hb.process(
 	interp_threshold=1024	# amp beyond which will be checked for clipping
 )
 
-# Visualize peaks for inspection
+print(measures['bpm']) #returns BPM value
+print(measures['rmssd']) # returns RMSSD HRV measure
+
 hb.plotter()
