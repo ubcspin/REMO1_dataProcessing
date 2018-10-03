@@ -1,6 +1,6 @@
 data/*
 .DS_Store?
 .DS_Store
-heartrate_analysis*
+heartbeat*
 *Rapp*
 *Rhistory*
