@@ -1,5 +1,6 @@
-.Rapp*.Rhistory
 data/*
 .DS_Store?
 .DS_Store
 heartrate_analysis*
+*Rapp*
+*Rhistory*
